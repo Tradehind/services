@@ -31,8 +31,8 @@ app.use('/uploads', express.static('uploads'));
 
 
 
-//mongoose.connect(process.env.mongodb_cluster, {
-mongoose.connect('mongodb://localhost:27017/tradehind', {
+mongoose.connect(process.env.mongodb_cluster, {
+//mongoose.connect('mongodb://localhost:27017/tradehind', {
 //  useNewUrlParser: true,
  // useUnifiedTopology: true
 })
