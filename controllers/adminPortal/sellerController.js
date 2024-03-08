@@ -204,86 +204,86 @@ exports.importNewDataSeller = async (req, res) => {
 
 
     let filePath = __dirname + '/' + "imports/820386.csv";
-    
+
     try {
-     //   const filePath = 'path/to/your/csvfile.csv'; // Path to your CSV file
-    
+        //   const filePath = 'path/to/your/csvfile.csv'; // Path to your CSV file
+
         // Ensure the file exists
         if (!fs.existsSync(filePath)) {
-          return res.status(404).json({ error: 'File not found' });
+            return res.status(404).json({ error: 'File not found' });
         }
-    
+
         // Create a stream to read the CSV file
         const stream = fs.createReadStream(filePath)
-          .pipe(csvParser());
-    
+            .pipe(csvParser());
+
         // Process each row
         let importedCount = 0;
         stream.on('data', async (row) => {
-          try {
-            
-           
+            try {
 
-            // {
-            //     Company: '',
-            //     Name: 'firoj khan',
-            //     Mobile: '9200940040',
-            //     Address: 'House no 2027,Gomti Pura Dabra',
-            //     Pincode: '475110',
-            //     City: 'Gwalior',
-            //     State: 'MP',
-            //     Country: 'India',
-            //     Email: 'firojkhan728@gmail.com',
-            //     Domain: 'hamiltonpaints.com'
-            //   }
 
-            if(row.Company && row.Mobile && row.City && row.Company!='N/A'){
 
-                let inObj = {
-                    company_name: capitalizeFirstLetter(row.Company),
-                    phone1: row.Mobile.replace(/\s/g, ''),
-                    address1:row.Address,
-                    pincode: row.Pincode.replace(/\s/g, ''),
-                    city: capitalizeFirstLetter(row.City),
-                    state: capitalizeFirstLetter(row.State),
-                    email1: row.Email,
-                    website: row.Domain
+                // {
+                //     Company: '',
+                //     Name: 'firoj khan',
+                //     Mobile: '9200940040',
+                //     Address: 'House no 2027,Gomti Pura Dabra',
+                //     Pincode: '475110',
+                //     City: 'Gwalior',
+                //     State: 'MP',
+                //     Country: 'India',
+                //     Email: 'firojkhan728@gmail.com',
+                //     Domain: 'hamiltonpaints.com'
+                //   }
+
+                if (row.Company && row.Mobile && row.City && row.Company != 'N/A') {
+
+                    let inObj = {
+                        company_name: capitalizeFirstLetter(row.Company),
+                        phone1: row.Mobile.replace(/\s/g, ''),
+                        address1: row.Address,
+                        pincode: row.Pincode.replace(/\s/g, ''),
+                        city: capitalizeFirstLetter(row.City),
+                        state: capitalizeFirstLetter(row.State),
+                        email1: row.Email,
+                        website: row.Domain
+                    }
+
+                    if (row.Pincode && isStringConvertibleToInteger(row.Pincode)) {
+                        console.log('removing pincode', inObj.pincode);
+                        delete inObj.pincode;
+                    }
+
+                    let findSeller = await SellerModel.findOne({ company_name: inObj.company_name, phone: inObj.phone1 });
+                    if (!findSeller) {
+                        const newSeller = await SellerModel.create(inObj);
+                    }
+                    importedCount++;
+                    //   console.log('row company_name imported', row.Company);
+
+
+                } else {
+                    //  console.log('row company_name not imported', row.Company);
                 }
 
-                if(row.Pincode && !isInteger(row.Pincode)){
-                    console.log('removing pincode', inObj.pincode);
-                    delete inObj.pincode;
-                }
 
-                let findSeller = await SellerModel.findOne({company_name: inObj.company_name, phone:inObj.phone1});
-                if(!findSeller){
-                    const newSeller = await SellerModel.create(inObj);
-                }
-                importedCount++;
-             //   console.log('row company_name imported', row.Company);
-                
 
-            }else{
-              //  console.log('row company_name not imported', row.Company);
+            } catch (error) {
+                console.error('Error importing seller:', error);
             }
-
-            
-
-          } catch (error) {
-            console.error('Error importing seller:', error);
-          }
         });
-    
+
         // When the stream ends, send response
         stream.on('end', () => {
-          res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
+            res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
         });
-      } catch (error) {
+    } catch (error) {
         console.error('Error importing sellers:', error);
         res.status(500).json({ error: 'Error importing sellers' });
-      }
+    }
 
-    
+
 
 
 }
@@ -294,4 +294,13 @@ function capitalizeFirstLetter(string) {
 
 function isInteger(value) {
     return /^\d+$/.test(value);
-  }
+}
+
+function isStringConvertibleToInteger(str) {
+    // Use parseInt to attempt conversion
+    const num = parseInt(str);
+
+    // Check if the result is not NaN (Not a Number) and the parsed number is equal to the original string
+    // This ensures that the entire string was successfully converted to an integer
+    return !isNaN(num) && num.toString() === str;
+}
