@@ -203,7 +203,9 @@ exports.importDataSeller = async (req, res) => {
 exports.importNewDataSeller = async (req, res) => {
 
 
-    let filePath = __dirname + '/' + "imports/820386.csv";
+    //let filePath = __dirname + '/' + "imports/820386.csv";
+    let filePath = __dirname + '/' + "imports/1004257.csv";
+    
 
     try {
         //   const filePath = 'path/to/your/csvfile.csv'; // Path to your CSV file
@@ -224,40 +226,67 @@ exports.importNewDataSeller = async (req, res) => {
 
 
 
-                // {
-                //     Company: '',
-                //     Name: 'firoj khan',
-                //     Mobile: '9200940040',
-                //     Address: 'House no 2027,Gomti Pura Dabra',
-                //     Pincode: '475110',
-                //     City: 'Gwalior',
-                //     State: 'MP',
-                //     Country: 'India',
-                //     Email: 'firojkhan728@gmail.com',
-                //     Domain: 'hamiltonpaints.com'
-                //   }
+                // if (row.Company && row.Mobile && row.City && row.Company != 'N/A') {
 
-                if (row.Company && row.Mobile && row.City && row.Company != 'N/A') {
+                //     let inObj = {
+                //         company_name: capitalizeFirstLetter(row.Company),
+                //         phone1: row.Mobile.replace(/\s/g, ''),
+                //         address1: row.Address,
+                //         pincode: row.Pincode.replace(/\s/g, ''),
+                //         city: capitalizeFirstLetter(row.City),
+                //         state: capitalizeFirstLetter(row.State),
+                //         email1: row.Email,
+                //         website: row.Domain
+                //     }
 
-                    let inObj = {
-                        company_name: capitalizeFirstLetter(row.Company),
-                        phone1: row.Mobile.replace(/\s/g, ''),
-                        address1: row.Address,
-                        pincode: row.Pincode.replace(/\s/g, ''),
-                        city: capitalizeFirstLetter(row.City),
-                        state: capitalizeFirstLetter(row.State),
-                        email1: row.Email,
-                        website: row.Domain
-                    }
+                //     if (!isStringConvertibleToInteger(row.Pincode)) {
+                //         console.log('removing pincode', inObj.pincode);
+                //         delete inObj.pincode;
+                //     }
 
-                    if (row.Pincode && isStringConvertibleToInteger(row.Pincode)) {
-                        console.log('removing pincode', inObj.pincode);
-                        delete inObj.pincode;
-                    }
+
+                    if (row.BusinessName && row.Mobile && row.City && row.BusinessName != 'N/A') {
+
+                        let comp_name = '';
+                        if(row.BusinessName){
+                            comp_name = capitalizeFirstLetter(row.BusinessName)
+                        }
+
+                        let city = '';
+                        if(row.City){
+                            city = capitalizeFirstLetter(row.City)
+                        }
+
+                        let state = '';
+                        if(row.State){
+                            state = capitalizeFirstLetter(row.State)
+                        }
+
+                        let inObj = {
+                            company_name: comp_name,
+                            phone1: row.Mobile.replace(/\s/g, ''),
+                            address1: row.StreetAddress,
+                            pincode: row.PinCode.replace(/\s/g, ''),
+                            city: city,
+                            state: state,
+                            email1: row.Email,
+                            website: row.Website
+                        }
+
+                        console.log('inObj', inObj);
+    
+                        if (!isStringConvertibleToInteger(row.PinCode)) {
+                            console.log('removing pincode', inObj.pincode);
+                            delete inObj.pincode;
+                        }
 
                     let findSeller = await SellerModel.findOne({ company_name: inObj.company_name, phone: inObj.phone1 });
                     if (!findSeller) {
                         const newSeller = await SellerModel.create(inObj);
+
+                        console.log('creating---', inObj.company_name);
+                    }else{
+                        console.log('user found ', inObj.company_name);
                     }
                     importedCount++;
                     //   console.log('row company_name imported', row.Company);
