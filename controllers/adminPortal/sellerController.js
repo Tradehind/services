@@ -273,14 +273,15 @@ exports.importNewDataSeller = async (req, res) => {
                             website: row.Website
                         }
 
-                        console.log('inObj', inObj);
+                       // console.log('inObj', inObj, isStringConvertibleToInteger(row.PinCode));
     
                         if (!isStringConvertibleToInteger(row.PinCode)) {
                             console.log('removing pincode', inObj.pincode);
                             delete inObj.pincode;
                         }
 
-                    let findSeller = await SellerModel.findOne({ company_name: inObj.company_name, phone: inObj.phone1 });
+                    let findSeller = await SellerModel.findOne({ company_name: inObj.company_name, phone1: inObj.phone1 });
+                    console.log(findSeller, 'findSeller------');
                     if (!findSeller) {
                         const newSeller = await SellerModel.create(inObj);
 
