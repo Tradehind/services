@@ -117,6 +117,10 @@ const sellerSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  filtered: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -200,123 +200,447 @@ exports.importDataSeller = async (req, res) => {
 }
 
 
+// exports.importNewDataSeller = async (req, res) => {
+//     const filePath = __dirname + '/' + "imports/pvt.csv";
+
+//     try {
+//         if (!fs.existsSync(filePath)) {
+//             return res.status(404).json({ error: 'File not found' });
+//         }
+
+//         let importedCount = 0;
+//         const batchSize = 100; // Adjust batch size as needed
+//         let batch = [];
+
+//         const processRow = async (row) => {
+//             try {
+//                 let company_name = row.Company;
+//                 let first_name = row.Name;
+//                 let phone1 = row.Mobile;
+//                 // let phone2 = row.Mobile2;
+//                 let address1 = row.Address;
+//                 let pincode = row.Pincode;
+//                 let city = row.City;
+//                 // let state = row.State;
+//                 let email1 = row.Email;
+
+
+//                     if (company_name) {  company_name = capitalizeFirstLetter(company_name)  }
+//                     if (city) {    city = capitalizeFirstLetter(city)    }
+//                     // if (state) {  state = capitalizeFirstLetter(state) }
+//                     if (phone1) {   phone1 = capitalizeFirstLetter(phone1).replace(/\s/g, '')  }
+
+//                     let inObj = {
+//                         company_name: company_name,
+//                         first_name: first_name,
+//                         phone1: phone1,
+//                         //  phone2: phone2,
+//                         address1: address1,
+//                         pincode: pincode,
+//                         city: city,
+//                         // state: state,
+//                         email1: email1,
+//                         // website: row.Website
+//                     }
+
+//                     if (pincode) {
+//                         pincode = pincode.replace(/\s/g, '');
+
+//                         if (!isStringConvertibleToInteger(pincode)) {
+//                             console.log('removing pincode', pincode);
+//                             delete inObj.pincode;
+//                         } else {
+//                             inObj.pincode = pincode
+//                         }
+
+//                     }
+
+//                 if (company_name && phone1 && city) {
+//                     // Check for duplicacy using mobile number
+//                     const existingSeller = await SellerModel.findOne({ phone1: inObj.phone1, company_name:company_name  });
+//                     if (!existingSeller) {
+//                         console.log('not existing adding to batch---', company_name);
+//                         // Push data to the batch
+//                         batch.push(inObj);
+//                         importedCount++;
+
+//                         if (batch.length >= batchSize) {
+//                             console.log(batch.length, '--------', batchSize,  '---------------------------------------batch size importing now------------------------------------------------------------------------------------------');
+//                             importBulk(batch);
+//                             batch = []; // Clear the batch
+//                             stream.pause();
+//                             setTimeout(() => {
+//                                 console.log('Waiting for 10 seconds before processing the next batch...');
+//                                 stream.resume(); // Resume reading the stream to process the next batch
+//                             }, 10000); // 10 seconds delay
+//                         }
+//                     } else {
+//                         console.log('Seller with data already exists:', company_name);
+//                     }
+//                 }
+//             } catch (error) {
+//                 console.error('Error importing seller:', error);
+//             }
+//         };
+
+//         let stream = fs.createReadStream(filePath)
+//             .pipe(csvParser())
+//             .on('data', async (row) => {
+//                 await processRow(row);
+//             })
+//             .on('end', async () => {
+//                 // Insert remaining documents in the batch
+//                 if (batch.length > 0) {
+//                     console.log('inside this ----end');
+//                     //importBulk(batch);
+//                 }
+//                 res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
+//             });
+
+//     } catch (error) {
+//         console.error('Error importing sellers:', error);
+//         res.status(500).json({ error: 'Error importing sellers' });
+//     }
+// };
+
+
+// exports.importNewDataSeller = async (req, res) => {
+//     const filePath = __dirname + '/' + "imports/pvt.csv";
+
+//     try {
+//         if (!fs.existsSync(filePath)) {
+//             return res.status(404).json({ error: 'File not found' });
+//         }
+
+//         let importedCount = 0;
+//         const batchSize = 100; // Adjust batch size as needed
+//         let batch = [];
+//         let pauseStream = false; // Flag to control stream pausing
+
+//         const processRow = async (row) => {
+//             try {
+//                 let company_name = row.Company;
+//                 let first_name = row.Name;
+//                 let phone1 = row.Mobile;
+//                 // let phone2 = row.Mobile2;
+//                 let address1 = row.Address;
+//                 let pincode = row.Pincode;
+//                 let city = row.City;
+//                 // let state = row.State;
+//                 let email1 = row.Email;
+
+//                 if (company_name) { company_name = capitalizeFirstLetter(company_name) }
+//                 if (city) { city = capitalizeFirstLetter(city) }
+//                 // if (state) { state = capitalizeFirstLetter(state) }
+//                 if (phone1) { phone1 = capitalizeFirstLetter(phone1).replace(/\s/g, '') }
+
+//                 let inObj = {
+//                     company_name: company_name,
+//                     first_name: first_name,
+//                     phone1: phone1,
+//                     //  phone2: phone2,
+//                     address1: address1,
+//                     pincode: pincode,
+//                     city: city,
+//                     // state: state,
+//                     email1: email1,
+//                     // website: row.Website
+//                 }
+
+//                 if (pincode) {
+//                     pincode = pincode.replace(/\s/g, '');
+
+//                     if (!isStringConvertibleToInteger(pincode)) {
+//                         console.log('removing pincode', pincode);
+//                         delete inObj.pincode;
+//                     } else {
+//                         inObj.pincode = pincode
+//                     }
+
+//                 }
+
+//                 if (company_name && phone1 && city) {
+//                     // Check for duplicacy using mobile number
+//                     const existingSeller = await SellerModel.findOne({ phone1: inObj.phone1, company_name: company_name });
+//                     if (!existingSeller) {
+//                         console.log('not existing adding to batch---', company_name);
+//                         // Push data to the batch
+//                         batch.push(inObj);
+//                         importedCount++;
+
+//                         if (batch.length >= batchSize) {
+//                             console.log(batch.length, '--------', batchSize, '---------------------------------------batch size importing now------------------------------------------------------------------------------------------');
+//                             importBulk(batch);
+//                             batch = []; // Clear the batch
+//                             pauseStream = true; // Set flag to pause the stream
+//                             setTimeout(() => {
+//                                 console.log('Waiting for 10 seconds before processing the next batch...');
+//                                 pauseStream = false; // Set flag to resume the stream
+//                                 stream.resume(); // Resume reading the stream to process the next batch
+//                             }, 10000); // 10 seconds delay
+//                         }
+//                     } else {
+//                         console.log('Seller with data already exists:', company_name);
+//                     }
+//                 }
+//             } catch (error) {
+//                 console.error('Error importing seller:', error);
+//             }
+//         };
+
+//         const stream = fs.createReadStream(filePath)
+//             .pipe(csvParser())
+//             .on('data', async (row) => {
+//                 if (!pauseStream) { // Check if the stream should be paused
+//                     await processRow(row);
+//                 } else {
+//                     stream.pause(); // Pause the stream
+//                 }
+//             })
+//             .on('end', async () => {
+//                 // Insert remaining documents in the batch
+//                 if (batch.length > 0) {
+//                     console.log('inside this ----end');
+//                     //importBulk(batch);
+//                 }
+//                 res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
+//             });
+
+//     } catch (error) {
+//         console.error('Error importing sellers:', error);
+//         res.status(500).json({ error: 'Error importing sellers' });
+//     }
+// };
+
+// async function importBulk(batch) {
+//     console.log('importing bulk data*************************', batch);
+//     for (const item of batch) {
+//         try {
+//             const result = await SellerModel.create(item);
+//             console.log('Data imported successfully:', result);
+//         } catch (error) {
+//             console.error('Error importing data:', error);
+//             // Handle the error as needed
+//         }
+//     }
+// }
+
+
+// exports.importNewDataSeller = async (req, res) => {
+//     const filePath = __dirname + '/' + "imports/pvt.csv";
+
+//     try {
+//         if (!fs.existsSync(filePath)) {
+//             return res.status(404).json({ error: 'File not found' });
+//         }
+
+//         let importedCount = 0;
+//         const batchSize = 1000; // Adjust batch size as needed
+//         let batch = [];
+
+//         const processRow = async (row) => {
+//             try {
+
+
+//                 // Your data processing logic here...
+
+//                 //                 let company_name = row.Company;
+//                 let first_name = row.Name;
+//                 let phone1 = row.Mobile;
+//                 // let phone2 = row.Mobile2;
+//                 let address1 = row.Address;
+//                 let pincode = row.Pincode;
+//                 let city = row.City;
+//                 // let state = row.State;
+//                 let email1 = row.Email;
+
+//                 if (company_name && phone1 && city) {
+
+
+//                     if (company_name) {
+//                         company_name = capitalizeFirstLetter(company_name)
+//                     }
+
+//                     if (city) {
+//                         city = capitalizeFirstLetter(city)
+//                     }
+
+//                     // if (state) {
+//                     //     state = capitalizeFirstLetter(state)
+//                     // }
+
+//                     if (phone1) {
+//                         phone1 = capitalizeFirstLetter(phone1).replace(/\s/g, '')
+//                     }
+
+//                     let inObj = {
+//                         company_name: company_name,
+//                         first_name: first_name,
+//                         phone1: phone1,
+//                         //  phone2: phone2,
+//                         address1: address1,
+//                         pincode: pincode,
+//                         city: city,
+//                         // state: state,
+//                         email1: email1,
+//                         // website: row.Website
+//                     }
+
+//                     if (pincode) {
+//                         pincode = pincode.replace(/\s/g, '');
+
+//                         if (!isStringConvertibleToInteger(pincode)) {
+//                             console.log('removing pincode', pincode);
+//                             delete inObj.pincode;
+//                         } else {
+//                             inObj.pincode = pincode
+//                         }
+
+//                     }
+
+//                     batch.push(inObj);
+
+
+//                     if (batch.length >= batchSize) {
+//                         // Insert batch into the database
+//                         await SellerModel.insertMany(batch);
+//                         batch = []; // Clear the batch
+//                     }
+
+
+//                 }
+//             } catch (error) {
+//                 console.error('Error importing seller:', error);
+//             }
+//         };
+
+//         const stream = fs.createReadStream(filePath)
+//             .pipe(csv())
+//             .on('data', async (row) => {
+//                 await processRow(row);
+//             })
+//             .on('end', async () => {
+//                 // Insert remaining documents in the batch
+//                 if (batch.length > 0) {
+//                     await SellerModel.insertMany(batch);
+//                 }
+//                 res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
+//             });
+
+//     } catch (error) {
+//         console.error('Error importing sellers:', error);
+//         res.status(500).json({ error: 'Error importing sellers' });
+//     }
+// };
+
+
 exports.importNewDataSeller = async (req, res) => {
-
-
-    //let filePath = __dirname + '/' + "imports/820386.csv";
-    let filePath = __dirname + '/' + "imports/1004257.csv";
-    
+    const filePath = __dirname + '/' + "imports/1004257.csv";
 
     try {
-        //   const filePath = 'path/to/your/csvfile.csv'; // Path to your CSV file
-
-        // Ensure the file exists
         if (!fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'File not found' });
         }
 
-        // Create a stream to read the CSV file
-        const stream = fs.createReadStream(filePath)
-            .pipe(csvParser());
-
-        // Process each row
         let importedCount = 0;
-        stream.on('data', async (row) => {
-            try {
 
-
-
-                // if (row.Company && row.Mobile && row.City && row.Company != 'N/A') {
-
-                //     let inObj = {
-                //         company_name: capitalizeFirstLetter(row.Company),
-                //         phone1: row.Mobile.replace(/\s/g, ''),
-                //         address1: row.Address,
-                //         pincode: row.Pincode.replace(/\s/g, ''),
-                //         city: capitalizeFirstLetter(row.City),
-                //         state: capitalizeFirstLetter(row.State),
-                //         email1: row.Email,
-                //         website: row.Domain
-                //     }
-
-                //     if (!isStringConvertibleToInteger(row.Pincode)) {
-                //         console.log('removing pincode', inObj.pincode);
-                //         delete inObj.pincode;
-                //     }
-
-
-                    if (row.BusinessName && row.Mobile && row.City && row.BusinessName != 'N/A') {
-
-                        let comp_name = '';
-                        if(row.BusinessName){
-                            comp_name = capitalizeFirstLetter(row.BusinessName)
-                        }
-
-                        let city = '';
-                        if(row.City){
-                            city = capitalizeFirstLetter(row.City)
-                        }
-
-                        let state = '';
-                        if(row.State){
-                            state = capitalizeFirstLetter(row.State)
-                        }
-
-                        let inObj = {
-                            company_name: comp_name,
-                            phone1: row.Mobile.replace(/\s/g, ''),
-                            address1: row.StreetAddress,
-                            pincode: row.PinCode.replace(/\s/g, ''),
-                            city: city,
-                            state: state,
-                            email1: row.Email,
-                            website: row.Website
-                        }
-
-                       // console.log('inObj', inObj, isStringConvertibleToInteger(row.PinCode));
-    
-                        if (!isStringConvertibleToInteger(row.PinCode)) {
-                            console.log('removing pincode', inObj.pincode);
-                            delete inObj.pincode;
-                        }
-
-                    let findSeller = await SellerModel.findOne({ company_name: inObj.company_name, phone1: inObj.phone1 });
-                    console.log(findSeller, 'findSeller------');
-                    if (!findSeller) {
-                        const newSeller = await SellerModel.create(inObj);
-
-                        console.log('creating---', inObj.company_name);
-                    }else{
-                        console.log('user found ', inObj.company_name);
-                    }
-                    importedCount++;
-                    //   console.log('row company_name imported', row.Company);
-
-
-                } else {
-                    //  console.log('row company_name not imported', row.Company);
+        fs.createReadStream(filePath)
+            .pipe(csvParser())
+            .on('data', async (row) => {
+         
+                // Remove extra quotes from company_name
+                let company_name = row.Company;
+                if(company_name){
+                    company_name = company_name.replace(/^"|"$/g, '');
                 }
 
+               // let first_name = row.ContactPerson;
+                let phone1 = row.Mobile;
+                // let phone2 = row.phone;
+                // let address1 = row.Address;
+                // let pincode = row.Pincode;
+                let city = row.City;
+                let email1 = row.Email;
+                let website = row.Website;
+                let address1 = row.Address;
+               // let Addresstemp = row.StreetAddress;
+               // let Area = row.Area;
+              //  let state = row.MSc;
+
+                // Filter out empty fields and join them with commas
+              //  let result = [Area, Addresstemp, Addresstemp1].filter(field => field).join(', ');
+
+                let inObj = {
+
+                    company_name: company_name,
+                   // first_name: first_name,
+                    phone1: phone1,
+                    // pincode: pincode,
+                    city: city,
+                    email1: email1,
+                    website: website,
+                    // phone2:phone2,
+                    // email2:email2,
+                    address1: address1,
+                   // state: state
+
+                }
+
+               
+                // if (company_name && city) {
+                // const existingSeller = await SellerModel.findOne({ phone1: phone1, company_name: company_name });
+                // if (!existingSeller) {
+                //console.log('Importing this', company_name);
+                try {
+
+                    await SellerModel.create(inObj);
+                } catch (error) {
+                    console.error('Error occurred while creating seller:', error);
+                    // Handle the error accordingly, such as logging, notifying the user, or taking corrective actions.
+                }
+                // } else {
+                //     console.log('Seller with data already exists:', company_name);
+                // }
+                // }
+            })
+            .on('end', async () => {
+            })
+            .on('error', (error) => {
+                reject(error);
+            });
 
 
-            } catch (error) {
-                console.error('Error importing seller:', error);
-            }
-        });
+        res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
 
-        // When the stream ends, send response
-        stream.on('end', () => {
-            res.status(200).json({ message: `Sellers imported successfully. Total: ${importedCount}` });
-        });
     } catch (error) {
         console.error('Error importing sellers:', error);
         res.status(500).json({ error: 'Error importing sellers' });
     }
+};
 
 
+async function importBulk(batch) {
+    const newSeller = await SellerModel.insertMany(batch);
 
 
 }
+
+exports.createSellerBulkPoint = async (req, res) => {
+    try {
+        console.log('body-------------------', req.body);
+        let data = req.body;
+
+        if (data) {
+            const newSeller = await SellerModel.insertMany(req.body);
+        }
+        // 
+        res.status(201).json(req.body);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -333,4 +657,43 @@ function isStringConvertibleToInteger(str) {
     // Check if the result is not NaN (Not a Number) and the parsed number is equal to the original string
     // This ensures that the entire string was successfully converted to an integer
     return !isNaN(num) && num.toString() === str;
+}
+
+
+// API endpoint to clean up duplicate seller records
+exports.filterDataSeller = async (req, res) => {
+    try {
+        // Fetch all seller records from the database
+        const allSellers = await Seller.find({ filtered: { $exists: false } }).limit(10000).exec();;
+
+        for (const seller of allSellers) {
+            
+            const filter = { _id: seller._id };
+            let update = { filtered: true };
+
+            if(seller.company_name){
+                update.company_name = seller.company_name.toLowerCase();
+            }
+            if(seller.address1){
+                update.address1 = seller.address1.toLowerCase();
+                update.address1 = update.address1.trim();
+            }
+            if(seller.state){
+                update.state = capitalizeFirstLetter(seller.state);
+                update.state = update.state.trim();
+            }
+            if(seller.city){
+                update.city = capitalizeFirstLetter(seller.city);
+                update.city = update.city.trim();
+            }
+
+            console.log('seller----', update);
+            
+        }
+
+
+        res.json({ message: 'Duplicate seller records cleaned up successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to clean up duplicate seller records.' });
+    }
 }

@@ -1,6 +1,8 @@
 const { LeadModel } = require('../../models');
 const { Op } = require('sequelize');
 
+const Lead = LeadModel;
+
 exports.createLead = async (req, res) => {
   try {
     const lead = await Lead.create(req.body);

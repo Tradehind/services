@@ -5,7 +5,7 @@ const express = require('express');
 
 
 const routes = require('./routes/routes');
-
+const sellerRoutes = require('./routes/seller');
 
 // Initialize Express
 const app = express();
@@ -18,14 +18,14 @@ const path = require('path');
 const fs = require('fs');
 // const logs = require('./middleware/logger');
 const mongoose = require('mongoose');
-
+const { scheduleCronJob } = require('./cron/general');
 
 
 require('dotenv').config()
 
 
 // Middleware to parse JSON
-app.use(express.json());
+app.use(express.json({limit: '100mb'}));
 app.use(cors({ origin: '*' }));
 app.use('/uploads', express.static('uploads'));
 
@@ -48,7 +48,6 @@ const logsDirectory = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDirectory)) {
   fs.mkdirSync(logsDirectory);
 }
-
 // Create a write stream (in append mode) for the logs
 // const accessLogStream = fs.createWriteStream(path.join(logsDirectory, 'access.log'), { flags: 'a' });
 // app.use(morgan('combined', { stream: accessLogStream }));
@@ -140,6 +139,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.use('/api', routes);
+app.use('/seller', sellerRoutes);
 
 
 // const sequelize = new Sequelize({
@@ -172,7 +172,7 @@ app.use('/api', routes);
 
 
 // Start the server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

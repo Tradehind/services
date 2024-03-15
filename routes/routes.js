@@ -13,7 +13,7 @@ const leadController = require('../controllers/adminPortal/leadController');
 const blogController = require('../controllers/adminPortal/blogController');
 const webController = require('../controllers/webPortal/webController');
 const membershipController = require('../controllers/adminPortal/membershipController');
-const sellerPortalController = require('../controllers/sellerPortal/sellerPortalController');
+
 // Apply middleware to routes that require authentication
 // router.use(authenticateJWT);
 
@@ -51,6 +51,8 @@ router.delete('/seller/:id', sellerController.deleteSeller);
 router.put('/seller-status/:id', sellerController.markInactiveSellerById);
 
 router.get('/import-service', sellerController.importNewDataSeller);
+router.post('/bulk-import-point', sellerController.createSellerBulkPoint);
+router.post('/filter-data-seller', sellerController.filterDataSeller);
 
 
 // Product controller
