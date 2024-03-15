@@ -49,7 +49,7 @@ const removeDuplicateSellers = async () => {
         console.error('Error removing duplicate sellers:', error);
     }
 };
-cron.schedule('*/1 * * * *', () => {
+cron.schedule('*/45 * * * *', () => {
     removeDuplicateSellers();
 });
 
