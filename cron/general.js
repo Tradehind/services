@@ -8,7 +8,7 @@ const { SellerModel } = require('../models');
 const removeDuplicateSellers = async () => {
     try {
         let offset = 0;
-        const batchSize = 100;
+        const batchSize = 1000;
 
         const sellers = await SellerModel.find({ filtered: { $exists: false } })
             .limit(batchSize);
@@ -49,7 +49,7 @@ const removeDuplicateSellers = async () => {
         console.error('Error removing duplicate sellers:', error);
     }
 };
-cron.schedule('*/5 * * * *', () => {
+cron.schedule('*/1 * * * *', () => {
     removeDuplicateSellers();
 });
 
