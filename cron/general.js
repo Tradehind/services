@@ -11,8 +11,7 @@ const removeDuplicateSellers = async () => {
         const batchSize = 100;
 
         const sellers = await SellerModel.find({ filtered: { $exists: false } })
-            .limit(batchSize)
-            .skip(offset);
+            .limit(batchSize);
         //console.log(sellers, 'se');
 
 
@@ -42,6 +41,7 @@ const removeDuplicateSellers = async () => {
             }
 
              await SellerModel.findByIdAndUpdate(seller._id, {filtered:true}).exec();
+             console.log('Updating filtered----', seller.company_name);
         };
 
         console.log('Duplicate sellers removed and marked successfully.');
@@ -49,7 +49,7 @@ const removeDuplicateSellers = async () => {
         console.error('Error removing duplicate sellers:', error);
     }
 };
-cron.schedule('*/10 * * * *', () => {
+cron.schedule('*/5 * * * *', () => {
     removeDuplicateSellers();
 });
 
